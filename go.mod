@@ -5,6 +5,8 @@ go 1.18
 require (
 	github.com/energye/systray v1.0.0
 	github.com/wailsapp/wails/v2 v2.5.1
+	golang.design/x/hotkey v0.4.1
+	gopkg.in/ini.v1 v1.67.0
 )
 
 require (
@@ -28,6 +30,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
+	golang.design/x/mainthread v0.3.0 // indirect
 	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.7.0 // indirect
