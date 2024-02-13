@@ -5,9 +5,7 @@ export function GetHost():Promise<string>;
 
 export function SetHost(arg1:string):Promise<void>;
 
-export function SetIconOffline():Promise<void>;
-
-export function SetIconOnline():Promise<void>;
+export function TakeScreenshot():Promise<void>;
 
 export function WriteGame(arg1:string):Promise<void>;
 

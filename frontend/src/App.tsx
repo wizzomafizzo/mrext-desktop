@@ -1,15 +1,20 @@
-import {useEffect, useState} from 'react';
-import {WindowHide} from "../wailsjs/runtime";
+import { useEffect, useState } from "react";
 import useWebSocket from "react-use-websocket";
-import {GetHost, SetHost, SetIconOffline, SetIconOnline, WriteGame, WriteSystem} from "../wailsjs/go/main/App";
+import {
+    GetHost,
+    SetHost,
+    WriteGame,
+    WriteSystem,
+    TakeScreenshot,
+} from "../wailsjs/go/main/App";
 import axios from "axios";
 
 function toWsUrl(mister: string) {
-    return `ws://${mister}/api/ws`
+    return `ws://${mister}/api/ws`;
 }
 
 function toApiUrl(mister: string) {
-    return `http://${mister}/api`
+    return `http://${mister}/api`;
 }
 
 interface Running {
@@ -29,7 +34,8 @@ function handleMessage(
     event: MessageEvent,
     mister: string,
     setCore: (core: string) => void,
-    setGame: (game: string) => void) {
+    setGame: (game: string) => void
+) {
     const msg = event.data;
     const idx = msg.indexOf(":");
     const cmd = msg.substring(0, idx);
@@ -38,20 +44,22 @@ function handleMessage(
     console.log("cmd: " + cmd);
 
     if (cmd === "coreRunning" || cmd === "gameRunning") {
-        getPlaying(mister).then((running) => {
-            let core: string;
-            if (running.systemName !== "") {
-                core = running.systemName;
-            } else {
-                core = running.core;
-            }
-            setCore(core === "" ? "—" : core);
-            WriteSystem(core).catch((err) => console.error(err));
-            setGame(running.gameName === "" ? "—" : running.gameName);
-            WriteGame(running.gameName).catch((err) => console.error(err));
-        }).catch((err) => {
-            console.error(err);
-        });
+        getPlaying(mister)
+            .then((running) => {
+                let core: string;
+                if (running.systemName !== "") {
+                    core = running.systemName;
+                } else {
+                    core = running.core;
+                }
+                setCore(core === "" ? "—" : core);
+                WriteSystem(core).catch((err) => console.error(err));
+                setGame(running.gameName === "" ? "—" : running.gameName);
+                WriteGame(running.gameName).catch((err) => console.error(err));
+            })
+            .catch((err) => {
+                console.error(err);
+            });
     }
 }
 
@@ -70,27 +78,27 @@ function App() {
     useEffect(() => {
         if (ws.readyState === WebSocket.OPEN) {
             SetHost(mister).catch((err) => console.error(err));
-            SetIconOnline().catch((err) => console.error(err));
-        } else {
-            SetIconOffline().catch((err) => console.error(err));
         }
     }, [ws.readyState]);
 
     useEffect(() => {
-        GetHost().then((host) => {
-            setMister(host);
-        }).catch((err) => {
-            console.error(err);
-        });
+        GetHost()
+            .then((host) => {
+                setMister(host);
+            })
+            .catch((err) => {
+                console.error(err);
+            });
     }, []);
 
     return (
         <div id="app">
-            <div style={{padding: "10px"}}>
+            <div style={{ padding: "10px" }}>
                 <div className="form">
-
                     <div className="row">
-                        <label className="label" htmlFor="mister">MiSTer address</label>
+                        <label className="label" htmlFor="mister">
+                            MiSTer address
+                        </label>
                         <input
                             className="value"
                             autoComplete="off"
@@ -102,41 +110,43 @@ function App() {
                             }}
                             style={{
                                 borderRadius: "5px",
-                                backgroundColor: ws.readyState === WebSocket.OPEN ? "lightgreen" : "lightcoral"
+                                backgroundColor:
+                                    ws.readyState === WebSocket.OPEN
+                                        ? "lightgreen"
+                                        : "lightcoral",
                             }}
                         />
                     </div>
 
                     <div className="row">
-                        <div className="label">
-                            Active system
-                        </div>
-                        <div className="value">
-                            {core === "" ? "—" : core}
-                        </div>
+                        <div className="label">Active system</div>
+                        <div className="value">{core === "" ? "—" : core}</div>
                     </div>
 
                     <div className="row">
-                        <div className="label">
-                            Active game
-                        </div>
-                        <div className="value">
-                            {game === "" ? "—" : game}
-                        </div>
+                        <div className="label">Active game</div>
+                        <div className="value">{game === "" ? "—" : game}</div>
                     </div>
-                    <div style={{flexGrow: 1, display: "flex", alignItems: "flex-end", justifyContent: "right"}}>
+                    <div
+                        style={{
+                            flexGrow: 1,
+                            display: "flex",
+                            alignItems: "flex-end",
+                            justifyContent: "right",
+                        }}
+                    >
                         <button
                             onClick={() => {
-                                WindowHide();
+                                TakeScreenshot();
                             }}
                         >
-                            Hide window
+                            Take screenshot
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
-export default App
+export default App;

@@ -3,25 +3,12 @@ package main
 import (
 	"context"
 	_ "embed"
-	"github.com/energye/systray"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
-	"gopkg.in/ini.v1"
+	"net/http"
 	"os"
 	"path/filepath"
-	goruntime "runtime"
+
+	"gopkg.in/ini.v1"
 )
-
-//go:embed frontend/src/assets/images/misterkun.ico
-var misterkunIco []byte
-
-//go:embed frontend/src/assets/images/misterkun-online.ico
-var misterkunIcoOnline []byte
-
-//go:embed frontend/src/assets/images/misterkun.png
-var misterkunPng []byte
-
-//go:embed frontend/src/assets/images/misterkun-online.png
-var misterkunPngOnline []byte
 
 // App struct
 type App struct {
@@ -31,48 +18,6 @@ type App struct {
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{}
-}
-
-func setIconOffline() {
-	//goland:noinspection GoBoolExpressions
-	if goruntime.GOOS == "windows" {
-		systray.SetIcon(misterkunIco)
-	} else {
-		systray.SetIcon(misterkunPng)
-	}
-}
-
-func setIconOnline() {
-	//goland:noinspection GoBoolExpressions
-	if goruntime.GOOS == "windows" {
-		systray.SetIcon(misterkunIcoOnline)
-	} else {
-		systray.SetIcon(misterkunPngOnline)
-	}
-}
-
-func systemTray(app *App) func() {
-	return func() {
-		setIconOffline()
-
-		show := systray.AddMenuItem("Show", "Show The Window")
-		systray.AddSeparator()
-		exit := systray.AddMenuItem("Exit", "Quit The Program")
-
-		show.Click(func() {
-			runtime.WindowShow(app.ctx)
-		})
-		exit.Click(func() {
-			os.Exit(0)
-		})
-
-		systray.SetOnClick(func() {
-			runtime.WindowShow(app.ctx)
-		})
-		systray.SetOnRClick(func(menu systray.IMenu) {
-			_ = menu.ShowMenu()
-		})
-	}
 }
 
 func iniFilename() string {
@@ -157,15 +102,6 @@ func SaveIni(config Config) error {
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	systray.Run(systemTray(a), nil)
-}
-
-func (a *App) SetIconOffline() {
-	setIconOffline()
-}
-
-func (a *App) SetIconOnline() {
-	setIconOnline()
 }
 
 func (a *App) GetHost() (string, error) {
@@ -225,6 +161,24 @@ func (a *App) WriteGame(name string) error {
 
 	path = filepath.Join(filepath.Dir(path), config.GameFilename)
 	err = os.WriteFile(path, []byte(name), 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *App) TakeScreenshot() error {
+	config, _, err := LoadIni()
+	if err != nil {
+		return err
+	}
+
+	_, err = http.Post(
+		"http://"+config.Host+"/api/screenshots",
+		"application/json",
+		nil,
+	)
 	if err != nil {
 		return err
 	}

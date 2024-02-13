@@ -10,12 +10,8 @@ export function SetHost(arg1) {
   return window['go']['main']['App']['SetHost'](arg1);
 }
 
-export function SetIconOffline() {
-  return window['go']['main']['App']['SetIconOffline']();
-}
-
-export function SetIconOnline() {
-  return window['go']['main']['App']['SetIconOnline']();
+export function TakeScreenshot() {
+  return window['go']['main']['App']['TakeScreenshot']();
 }
 
 export function WriteGame(arg1) {
